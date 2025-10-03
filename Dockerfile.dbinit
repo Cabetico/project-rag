@@ -1,0 +1,33 @@
+# Base image
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    bash \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv (for venv and dependency management)
+RUN pip install --no-cache-dir uv
+
+# Copy dependency files
+COPY pyproject.toml uv.lock ./
+
+# Install Python dependencies inside uv venv
+RUN uv sync --frozen --no-dev
+
+# Copy your app code (needed for ingest.py and db.py)
+COPY e_commerce_rag/db_prep.py ./e_commerce_rag/db_prep.py
+COPY e_commerce_rag/ingest.py ./e_commerce_rag/ingest.py
+COPY e_commerce_rag/db.py ./e_commerce_rag/db.py
+
+# Copy the entrypoint script
+COPY init-entrypoint.sh /app/init-entrypoint.sh
+RUN chmod +x /app/init-entrypoint.sh
+
+# Use the entrypoint script
+ENTRYPOINT ["/app/init-entrypoint.sh"]
