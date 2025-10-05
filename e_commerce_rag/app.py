@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 import traceback
 from .rag import rag
 from . import db
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 app = Flask(__name__)
 
@@ -84,6 +85,11 @@ def feedback_stats():
         "thumbs_up": stats["thumbs_up"] or 0,
         "thumbs_down": stats["thumbs_down"] or 0
     })
+    
+    
+@app.route("/metrics")
+def metrics():
+    return generate_latest(), 200, {"Content-Type": CONTENT_TYPE_LATEST}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)

@@ -4,8 +4,31 @@ from time import time
 from openai import OpenAI
 from qdrant_client import QdrantClient, models
 from fastembed import TextEmbedding
-
+from prometheus_client import Counter, Histogram
 from . import ingest
+
+
+# Count how many queries we get
+rag_queries = Counter("rag_queries_total", "Total number of RAG queries")
+
+# Count how many queries fail
+rag_failures = Counter("rag_failures_total", "Number of failed RAG queries")
+
+# Latency histogram
+rag_latency = Histogram("rag_latency_seconds", "RAG query latency in seconds")
+
+
+# New ones
+rag_relevant = Counter(
+    "rag_relevant_total", 
+    "Number of RAG responses judged as relevant"
+)
+
+rag_irrelevant = Counter(
+    "rag_irrelevant_total", 
+    "Number of RAG responses judged as NOT relevant"
+)
+
 
 client_openai = OpenAI()
 qdrant_client = QdrantClient("http://qdrant:6333")
@@ -137,40 +160,54 @@ def calculate_openai_cost(model, tokens):
 
 
 def rag(query, model="gpt-4o-mini"):
-     
-    conversation_id = str(uuid.uuid4())
+    rag_queries.inc()
+    
     t0 = time()
+    
+    try:
+        conversation_id = str(uuid.uuid4())
+        search_results = rrf_search(query)
+        prompt = build_prompt(query, search_results)
+        answer, token_stats = llm(prompt)
+        relevance, rel_token_stats = evaluate_relevance(query, answer)
+        
+        relevance_value = relevance.get("Relevance", "UNKNOWN")
 
-    search_results = rrf_search(query)
-    prompt = build_prompt(query, search_results)
-    answer, token_stats = llm(prompt)
-    relevance, rel_token_stats = evaluate_relevance(query, answer)
+        if relevance_value.upper() == "RELEVANT":
+            rag_relevant.inc()
+        else:
+            rag_irrelevant.inc()
 
-    t1 = time()
-    took = t1 - t0
+        t1 = time()
+        took = t1 - t0
+        rag_latency.observe(took)
 
-    openai_cost_rag = calculate_openai_cost(model, token_stats)
-    openai_cost_eval = calculate_openai_cost(model, rel_token_stats)
+        openai_cost_rag = calculate_openai_cost(model, token_stats)
+        openai_cost_eval = calculate_openai_cost(model, rel_token_stats)
 
-    openai_cost = openai_cost_rag + openai_cost_eval
+        openai_cost = openai_cost_rag + openai_cost_eval
 
-    answer_data = {
-         "conversation_id": conversation_id,
-         "answer": answer,
-         "token_stats": token_stats,
-         "model_used": model,
-         "response_time": took,
-         "relevance": relevance.get("Relevance", "UNKNOWN"),
-         "relevance_explanation": relevance.get(
-              "Explanation", "Failed to parse evaluation"
-          ),
-         "prompt_tokens": token_stats["prompt_tokens"],
-         "completion_tokens": token_stats["completion_tokens"],
-         "total_tokens": token_stats["total_tokens"],
-         "eval_prompt_tokens": rel_token_stats["prompt_tokens"],
-         "eval_completion_tokens": rel_token_stats["completion_tokens"],
-         "eval_total_tokens": rel_token_stats["total_tokens"],
-         "openai_cost": openai_cost,
-     }
+        answer_data = {
+            "conversation_id": conversation_id,
+            "answer": answer,
+            "token_stats": token_stats,
+            "model_used": model,
+            "response_time": took,
+            "relevance": relevance.get("Relevance", "UNKNOWN"),
+            "relevance_explanation": relevance.get(
+                "Explanation", "Failed to parse evaluation"
+            ),
+            "prompt_tokens": token_stats["prompt_tokens"],
+            "completion_tokens": token_stats["completion_tokens"],
+            "total_tokens": token_stats["total_tokens"],
+            "eval_prompt_tokens": rel_token_stats["prompt_tokens"],
+            "eval_completion_tokens": rel_token_stats["completion_tokens"],
+            "eval_total_tokens": rel_token_stats["total_tokens"],
+            "openai_cost": openai_cost,
+        }
 
-    return answer_data
+        return answer_data
+    
+    except Exception as e:
+        rag_failures.inc()
+        raise
