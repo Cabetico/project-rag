@@ -1,7 +1,69 @@
-## PROJECT RAG FOR THE FAQ OF A E-COMMENRCE PLATFORM
+# LLM Zoomcamp 2025 PROJECT 
+## RAG based Chatbot for e-commerce platform FAQ
 
 
-### Start the services
+🧠 Project Summary — RAG Chatbot for E-commerce FAQ
+
+Modern e-commerce platforms receive large volumes of repetitive customer inquiries—such as questions about orders, shipping, returns, payments, and product details. Handling these requests manually or through static FAQ pages often leads to long response times, inconsistent answers, and poor customer experience.
+
+This project tackles those challenges by implementing a Retrieval-Augmented Generation (RAG) chatbot, designed to provide accurate, context-aware, and dynamic responses to user queries. Instead of relying solely on predefined answers, the chatbot retrieves the most relevant information from the company’s FAQ and knowledge base, then uses a language model to generate natural, precise replies.
+
+The solution reduces customer support workload, ensures information consistency, and enables scalable 24/7 assistance — improving both response quality and user satisfaction while lowering operational costs.
+
+This project was implemented for 
+[LLM Zoomcamp](https://github.com/DataTalksClub/llm-zoomcamp) -
+a free course about LLMs and RAG.
+
+💡 Key Use Cases
+
+* Order Tracking: Responds to “Where is my order?” or “Has my package shipped?” using the latest delivery info.
+
+* Returns & Refunds: Explains the company’s return policy, timelines, and steps for requesting a refund.
+
+* Payment & Billing Questions: Clarifies accepted payment methods or issues with failed transactions.
+
+* Product Information: Retrieves detailed specifications, size guides, or warranty info from the FAQ.
+
+* Account & Profile Help: Guides users on updating personal data, resetting passwords, or managing notifications.
+
+* Customer Support Deflection: Handles routine queries automatically, freeing human agents for complex issues.
+
+### Dataset
+
+The dataset used in this project comes from [E-commerce_FAQ](https://github.com/imsoumya18/E-commerce_FAQ) the data consists 79 rows with two simple columns
+
+* `prompt`:  Question
+* `response`: Answer
+
+
+### Technologies
+
+- Python 3.12
+- Docker and Docker Compose for containerization
+- [Qdrant](https://github.com/alexeygrigorev/minsearch) for Hybrid Vector Search | Vector DB service
+- Flask as the API interface (see [Background](#background) for more information on Flask)
+- Grafana for monitoring and PostgreSQL as the backend for it
+- OpenAI as an LLM
+
+### Preparation
+
+Since we use OpenAI, you need to provide the API key:
+
+At the moment this project uses a .env file 
+```bash
+APP_PORT=5000
+
+POSTGRES_HOST=postgres 
+POSTGRES_DB=course_assistant
+POSTGRES_USER=your_username
+POSTGRES_PASSWORD=your_password
+POSTGRES_PORT=5432
+
+OPENAI_API_KEY=yourkey
+```
+
+this env variables would be use in the docker-compose files
+
 
 Run 
 
