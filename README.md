@@ -47,13 +47,20 @@ The dataset used in this project comes from [E-commerce_FAQ](https://github.com/
 
 ### Preparation
 
-Since we use OpenAI, you need to provide the API key:
+🧩 Development Environment
+This project was developed and tested within a WSL2 (Windows Subsystem for Linux 2) environment.
+All provided Dockerfiles, docker-compose configurations, and command-line instructions are designed and verified to run seamlessly under WSL2.
+Minor adaptations may be required if running on native Linux or macOS environments.
 
-At the moment this project uses a .env file 
+⚙️ Environment Configuration
+
+This project relies on environment variables defined in a .env file located in the project root directory.
+The .env file must include the following variables:
+
 ```bash
 APP_PORT=5000
 
-POSTGRES_HOST=postgres 
+POSTGRES_HOST=postgres
 POSTGRES_DB=course_assistant
 POSTGRES_USER=your_username
 POSTGRES_PASSWORD=your_password
@@ -62,36 +69,68 @@ POSTGRES_PORT=5432
 OPENAI_API_KEY=yourkey
 ```
 
-this env variables would be use in the docker-compose files
+These variables are automatically loaded and used by the Dockerfiles and docker-compose configurations.
 
+⚠️ Important:
+The `OPENAI_API_KEY` variable is required for the chatbot’s retrieval-augmented generation (RAG) functionality.
+Without this key, the API calls to the OpenAI models will fail, and the assistant will not generate responses.
+Make sure to store this key securely and never commit it to version control.
 
-Run 
+🧪 Testing Note
+
+When running tests, ensure that a .env file is created following the structure above so that all services and environment variables are correctly resolved within the containers.
+
+![](images/img.png)
+
+🚀 Running the Project
+
+You can start the project using the provided startup script or by manually running the Docker Compose commands.
+
+🔧 Option 1: Using the Startup Script
+
+Make the script executable and run it:
 
 ```bash
   chmod +x start.sh
   
   ./start.sh
 ```
+This will automatically build and start all required 
+services (infrastructure and application).
 
-Or the services can be started directly via
+🐳 Option 2: Using Docker Compose Manually
 
-* Build infra
-`docker compose -f docker-compose-infra.yaml build --no-cache`   
+If you prefer to control each step individually, you can run the following commands:
 
-* Start infra
-`docker compose -f docker-compose-infra.yaml up --build`
+🏗️ Build Infrastructure
+`docker compose -f docker-compose-infra.yaml build --no-cache`
 
-* Build app
-`docker compose -f docker-compose-app.yaml build --no-cache`
+▶️ Start Infrastructure
+```bash
+docker compose -f docker-compose-infra.yaml up --build
+```
 
-* Start app
-`docker compose -f docker-compose-app.yaml up --build`
+🧩 Build Application
+```bash
+docker compose -f docker-compose-app.yaml build --no-cache`
+```
 
-* Remove services
+▶️ Start Application
+```bash
+docker compose -f docker-compose-app.yaml up --build`
+```
 
-  * `docker compose -f docker-compose-infra.yaml down`
+🧹 Stopping and Removing Services
 
-  * `docker compose -f docker-compose-app.yaml down`
+To stop and remove the running containers:
+
+```bash
+# Stop and remove infrastructure services
+docker compose -f docker-compose-infra.yaml down
+
+# Stop and remove application services
+docker compose -f docker-compose-app.yaml down
+```
 
 ## ANNEX
 
