@@ -82,6 +82,7 @@ When running tests, ensure that a .env file is created following the structure a
 
 ![](images/img.png)
 
+
 🚀 Running the Project
 
 You can start the project using the provided startup script or by manually running the Docker Compose commands.
@@ -130,6 +131,76 @@ docker compose -f docker-compose-infra.yaml down
 
 # Stop and remove application services
 docker compose -f docker-compose-app.yaml down
+```
+
+### App
+
+
+💻 Application Overview
+
+Once all services are up and running, the application will be accessible at:
+👉 [http://localhost:8501](http://localhost:8501)
+
+🗨️ Making a Query
+
+![](images/img2.png)
+
+💬 Viewing the Answer
+
+The chatbot retrieves and displays the most relevant response from the FAQ knowledge base.
+
+![](images/img3.png)
+
+📊 Additional Features
+
+The app also includes:
+
+Helpful / Not Helpful feedback buttons
+
+Fetch Recent Conversations to review previous interactions
+
+Feedback Statistics for quick performance insights
+
+![](images/img4.png)
+
+### Credentials
+
+🔐 Default Credentials
+🐘 PgAdmin
+
+Access the PostgreSQL management interface at:
+👉 http://localhost:5050
+
+Login Credentials
+
+```bash
+  Email:    admin@admin.com
+  Password: admin
+```
+
+These values are set in the `docker-compose-infra.yaml` under the pgadmin service:
+
+```yaml
+  environment:
+    PGADMIN_DEFAULT_EMAIL: admin@admin.com
+    PGADMIN_DEFAULT_PASSWORD: admin
+```
+📈 Grafana
+
+Access the monitoring dashboard at:
+👉 http://localhost:3000
+
+Login Credentials
+
+```bash
+  Username: admin
+  Password: admin123
+```
+
+```yaml
+  environment:
+  - GF_SECURITY_ADMIN_USER=admin
+  - GF_SECURITY_ADMIN_PASSWORD=admin123
 ```
 
 ## ANNEX
@@ -286,6 +357,3 @@ curl -X POST -H "Content-Type: application/json" -d "${FEEBACK_DATA}" ${URL}/fee
 docker compose -f docker-compose-app.yaml build --no-cache    
 ```
 
-* which are the policies?
-* the shipping is available for any   country?
-* there is some wrapping service for the item I purchased?
