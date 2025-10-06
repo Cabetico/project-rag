@@ -185,6 +185,30 @@ These values are set in the `docker-compose-infra.yaml` under the pgadmin servic
     PGADMIN_DEFAULT_EMAIL: admin@admin.com
     PGADMIN_DEFAULT_PASSWORD: admin
 ```
+
+🧩 Add a New Server Connection
+
+Once logged in, create a new server connection:
+
+1. Click “Add New Server”
+
+![](images/img5.png)
+
+2. In the Connection tab, configure the following settings:
+
+| Field                 | Value           |
+| --------------------- | --------------- |
+| **Host name/address** | `postgres`      |
+| **Port**              | `5432`          |
+| **Username**          | `your_username` |
+| **Password**          | `your_password` |
+
+
+These values come from the .env(that must be created) file used by the Docker setup.
+
+![](images/img6.png)
+
+
 📈 Grafana
 
 Access the monitoring dashboard at:
